@@ -12,6 +12,8 @@ var routes = require('./routes/index');
 
 var app = express();
 
+var DURACION_SESION = 2 * 1000;
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -41,6 +43,25 @@ app.use(function(req, res, next) {
   // Hacer visible req.session en las vistas
   res.locals.session = req.session;
   next();
+});
+
+app.use(function(req, res, next){
+    if(req.session.user){
+        // Petición autenticada
+        var now = new Date().getTime(),
+            lastInteraction = req.session.lastInteraction;
+
+        if (lastInteraction && (now - lastInteraction) > DURACION_SESION){
+            // Sesión caducada
+            delete req.session.user;
+            res.status(401);
+            res.render('error', { message: "La sesión ha caducado.", error: {}, errors: [] });
+        }else{
+            req.session.lastInteraction = new Date().getTime();
+            res.locals.session = req.session;
+        }
+    }
+    next();
 });
 
 app.use('/', routes);
