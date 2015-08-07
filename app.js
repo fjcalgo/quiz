@@ -12,7 +12,7 @@ var routes = require('./routes/index');
 
 var app = express();
 
-var DURACION_SESION = 2 * 1000;
+var DURACION_SESION_MIL = 2 * 1000;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -51,7 +51,7 @@ app.use(function(req, res, next){
         var now = new Date().getTime(),
             lastInteraction = req.session.lastInteraction;
 
-        if (lastInteraction && (now - lastInteraction) > DURACION_SESION){
+        if (lastInteraction && (now - lastInteraction) > DURACION_SESION_MIL){
             // Sesión caducada
             delete req.session.user;
             res.status(401);
